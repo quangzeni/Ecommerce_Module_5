@@ -1,9 +1,11 @@
 package ra.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -36,13 +38,14 @@ public class Product {
     private boolean status;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
+    @JsonIgnore
     private Category category;
     @JsonFormat(pattern = "dd-MM-yyyy")
     @CreationTimestamp
     @Column(name = "created_at")
     private Date created;
     @JsonFormat(pattern = "dd-MM-yyyy")
-    @CreationTimestamp
+    @UpdateTimestamp
     @Column(name = "updated_at")
     private Date updated;
 

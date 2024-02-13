@@ -7,12 +7,14 @@ import lombok.Setter;
 import ra.model.Product;
 import ra.model.User;
 
+import java.util.List;
+
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 public class ShopingCartResponse {
     private int id;
-    private Product product;
+    private List<Product> productList;
     private int orderQuantity;
 }
