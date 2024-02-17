@@ -30,13 +30,14 @@ public class ShopingCartController {
 
 //    Danh sách sản phẩm trong giỏ hàng
     @GetMapping("/{userId}")
-    public ResponseEntity<?> getProductById(@PathVariable Integer userId){
+    public ResponseEntity<?> getProductById(@PathVariable Long userId){
+        List<ProductResponse> productResponseList = shopingCartService.getProductById(userId);
         try {
-            List<Product> productList = shopingCartService.getProductById(userId);
-            if (productList.isEmpty()){
+
+            if (productResponseList.isEmpty()){
                 return new ResponseEntity<>(new Message("ShopingCart is empty"), HttpStatus.OK);
             }else {
-                return new ResponseEntity<>(productList,HttpStatus.OK);
+                return new ResponseEntity<>(productResponseList,HttpStatus.OK);
             }
         }catch (RuntimeException ex){
             return new ResponseEntity<>(new Message("UserId has not Shoping Cart"),HttpStatus.NOT_FOUND);
@@ -45,7 +46,7 @@ public class ShopingCartController {
 
 //    Thêm mới sản phẩm vào giỏ hàng (payload: productId and quantity)
     @PostMapping("/{userId}/add")
-    public ResponseEntity<?> addProduct(@PathVariable Integer userId, @RequestBody AddProductRequest addProductRequest){
+    public ResponseEntity<?> addProduct(@PathVariable Long userId, @RequestBody AddProductRequest addProductRequest){
         try {
             ShopingCartResponse shopingCartResponse = shopingCartService.addProduct(userId,addProductRequest);
             if (shopingCartResponse == null){
@@ -61,4 +62,54 @@ public class ShopingCartController {
     }
 
 //    Thay đổi số lượng đặt hàng
+    @PutMapping("/{userId}/update/{shopingCartId}")
+    public ResponseEntity<?> updateQuantity(
+            @PathVariable Long userId,
+            @PathVariable Integer shopingCartId,
+            @RequestBody AddProductRequest addProductRequest
+    ){
+        try {
+            ShopingCartResponse shopingCartResponse = shopingCartService.updateQuantity(userId,shopingCartId,addProductRequest);
+            return new ResponseEntity<>(shopingCartResponse,HttpStatus.OK);
+        } catch (UsernameNotFoundException e) {
+            return new ResponseEntity<>(new Message("User and ShopingCart not match"),HttpStatus.NOT_FOUND);
+        }catch (RuntimeException e){
+            return new ResponseEntity<>(new Message("ShopingCart not found"),HttpStatus.NOT_FOUND);
+        }
+    }
+
+//    Xóa 1 sản phẩm trong giỏ hàng
+    @DeleteMapping("/{userId}/delete/{shopingCartId}")
+    public ResponseEntity<Message> delete(@PathVariable Long userId,@PathVariable Integer shopingCartId){
+        try {
+            shopingCartService.delete(userId,shopingCartId);
+            return new ResponseEntity<>(new Message("Product deleted"),HttpStatus.OK);
+        }catch (UsernameNotFoundException e) {
+            return new ResponseEntity<>(new Message("ShopingCart not exist"), HttpStatus.NOT_FOUND);
+        }catch (RuntimeException e){
+            return new ResponseEntity<>(new Message("UserId and ShopingCart not match"),HttpStatus.NOT_FOUND);
+        }
+
+    }
+
+//    Xóa toàn bộ
+    @DeleteMapping("/{userId}/clear")
+    public ResponseEntity<Message> deleteAll(@PathVariable Long userId){
+        shopingCartService.deleteAll(userId);
+
+        return new ResponseEntity<>(new Message("All product has been deleted"),HttpStatus.OK);
+    }
+
+//    Checkout
+    @PostMapping("/{userId}/check-out")
+    public ResponseEntity<Message> checkout(@PathVariable Long userId){
+        try {
+            shopingCartService.checkout(userId);
+            return new ResponseEntity<>(new Message("Order placed successfully"),HttpStatus.OK);
+        }catch (UsernameNotFoundException e){
+            return new ResponseEntity<>(new Message("User not found"),HttpStatus.NOT_FOUND);
+        }catch (RuntimeException e){
+            return new ResponseEntity<>(new Message("Error occurred during checkout"),HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

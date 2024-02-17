@@ -17,4 +17,5 @@ public interface UserService {
     UserDTOResponse getUserById(Long id);
     UserDTOResponse toggleUserLock(Long id);
     List<UserDTOResponse> findByUserName(String userName);
+
 }

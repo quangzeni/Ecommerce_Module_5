@@ -1,9 +1,6 @@
 package ra.dto.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import ra.model.Product;
 import ra.model.User;
 
@@ -13,8 +10,9 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 @Setter
+@Builder
 public class ShopingCartResponse {
     private int id;
-    private List<Product> productList;
+    private Product product;
     private int orderQuantity;
 }
