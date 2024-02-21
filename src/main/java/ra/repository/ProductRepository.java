@@ -22,6 +22,10 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Page<Product> findAllByOrderByCreated(Pageable pageable);
     Optional<Product> getProductsById(Long id);
     List<Product> getProductsByCategory(Category category);
-//    @Query("SELECT w.product.id, count (w.product.id) from WishList w group by w.product.id ORDER BY COUNT (w.product.id) desc")
-//    Map<Long,Long> findTopProdductsInWishList();
+    Page<Product> findByStatusTrue(Pageable pageable);
+    @Query("SELECT w.product FROM WishList w GROUP BY w.product ORDER BY COUNT(w.product) DESC")
+    List<Product> findFeaturedProducts();
+    @Query("SELECT o.product from OrderDetails o GROUP BY o.product order by COUNT (o.product) DESC ")
+    List<Product> findBestSellerProducts();
+
 }

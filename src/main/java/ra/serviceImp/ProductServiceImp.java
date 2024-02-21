@@ -9,6 +9,7 @@ import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import ra.dto.request.ProductRequest;
 import ra.dto.response.ProductResponse;
+import ra.dto.response.ProductResponseAdminId;
 import ra.model.Category;
 import ra.model.Product;
 import ra.repository.CategoryRepository;
@@ -28,10 +29,35 @@ public class ProductServiceImp implements ProductService {
     private CategoryRepository categoryRepository;
 
     @Override
-    public List<ProductResponse> searchByNameOrDescription(String name, String description) {
+    public List<ProductResponse> searchByNameOrDescription(String keyvalue) {
 //        List<>
-        return productRepository.findByNameOrDescriptionContainingIgnoreCase(name, description).stream().map(product ->
+        return productRepository.findByNameOrDescriptionContainingIgnoreCase(keyvalue, keyvalue).stream().map(product ->
                 modelMapper.map(product, ProductResponse.class)).collect(Collectors.toList());
+    }
+
+//    Lấy tất cả sản phẩm được bán status = true
+    @Override
+    public List<ProductResponse> findByDirectionAndPagingWithStatusTrue(Pageable pageable){
+        Page<Product>productPage = productRepository.findByStatusTrue(pageable);
+        return productPage.getContent().stream()
+                .map(product -> modelMapper.map(product,ProductResponse.class))
+                .collect(Collectors.toList());
+    }
+
+//    Danh sách sản phẩm nổi bật
+    @Override
+    public List<ProductResponse> getFeaturedProducts() {
+        List<Product> productList = productRepository.findFeaturedProducts();
+        return productList.stream().map(
+                product -> modelMapper.map(product, ProductResponse.class)).collect(Collectors.toList());
+    }
+
+//    Danh sách sản phẩm bán chạy
+    @Override
+    public List<ProductResponse> findBestSellerProducts() {
+        List<Product> productList = productRepository.findBestSellerProducts();
+        return productList.stream().map(
+                product -> modelMapper.map(product, ProductResponse.class)).collect(Collectors.toList());
     }
 
     @Override
@@ -91,6 +117,13 @@ public class ProductServiceImp implements ProductService {
     public ProductResponse getProductsById(Long id) {
         Optional<Product> productOpt = productRepository.getProductsById(id);
         return productOpt.map(product -> modelMapper.map(product, ProductResponse.class)).orElse(null);
+    }
+
+    @Override
+    public ProductResponseAdminId getProductsByIdWithAdmin(Long id) {
+        Optional<Product> productOpt = productRepository.getProductsById(id);
+        return productOpt.map(product -> modelMapper.map(product,ProductResponseAdminId.class))
+                .orElse(null);
     }
 
     @Override

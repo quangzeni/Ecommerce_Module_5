@@ -31,7 +31,7 @@ public class Order {
     @Column(name = "order_at")
     @CreationTimestamp
     @JsonFormat(pattern = "dd-MM-yyyy")
-    private Date order;
+    private Date orderAt;
     @Column(name = "total_price", precision = 10, scale = 2)
     private BigDecimal totalPrice;
     @Column(name = "status")

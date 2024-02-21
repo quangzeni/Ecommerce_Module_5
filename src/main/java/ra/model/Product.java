@@ -49,7 +49,4 @@ public class Product {
     @Column(name = "updated_at")
     private Date updated;
 
-//    public Long getCategoryId(){
-//        return this.category.getId();
-//    }
 }

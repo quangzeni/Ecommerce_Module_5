@@ -11,14 +11,19 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
+import ra.dto.request.AddAddressRequest;
+import ra.dto.request.ChangePasswordRequest;
 import ra.dto.request.SignInRequest;
 import ra.dto.request.SignUpRequest;
+import ra.dto.response.AddAddressResponse;
 import ra.dto.response.SignInResponse;
 import ra.dto.response.SignUpResponse;
 import ra.dto.response.UserDTOResponse;
+import ra.model.Address;
 import ra.model.ERoles;
 import ra.model.Roles;
 import ra.model.User;
+import ra.repository.AddressRepository;
 import ra.repository.RolesRepository;
 import ra.repository.UserRepository;
 import ra.security.jwt.JwtProvider;
@@ -42,6 +47,8 @@ public class UserServiceImp implements UserService {
     private AuthenticationManager authenticationManager;
     @Autowired
     private JwtProvider jwtProvider;
+    @Autowired
+    private AddressRepository addressRepository;
 
     @Override
     public SignUpResponse register(SignUpRequest signUpRequest) {
@@ -128,6 +135,50 @@ public class UserServiceImp implements UserService {
         List<UserDTOResponse> userDTOResponseList = userList.stream().map(user ->
                 modelMapper.map(user,UserDTOResponse.class)).collect(Collectors.toList());
         return userDTOResponseList;
+    }
+
+    @Override
+    public UserDTOResponse changePassword(Long id, ChangePasswordRequest changePasswordRequest) {
+        User user = userRepository.findById(id).orElseThrow(() ->
+                new UsernameNotFoundException("User not found!"));
+
+        String encodedPassword = user.getPassword();
+        String oldPassword = changePasswordRequest.getOldPassword();
+        String newPassword = changePasswordRequest.getNewPassword();
+        String confirmPass = changePasswordRequest.getConfirmPass();
+
+        if (!newPassword.equals(confirmPass)) {
+            throw new RuntimeException("Confirm Password is not correct");
+        }
+
+        if (!passwordEncoder.matches(oldPassword,encodedPassword)) {
+            return null;
+        }
+
+        String encodedNewPassword = passwordEncoder.encode(newPassword);
+        user.setPassword(encodedNewPassword);
+        userRepository.save(user);
+
+        return modelMapper.map(user, UserDTOResponse.class);
+    }
+
+    @Override
+    public AddAddressResponse addAddress(Long id, AddAddressRequest addAddressRequest) {
+        Address address = Address.builder()
+                .fullAddress(addAddressRequest.getFullAddress())
+                .phone(addAddressRequest.getPhone())
+                .receiveName(addAddressRequest.getReceiveName())
+                .user(userRepository.getUserById(id))
+                .build();
+        Address newAddress = addressRepository.save(address);
+        return modelMapper.map(newAddress,AddAddressResponse.class);
+    }
+
+    @Override
+    public List<AddAddressResponse> getListAddress(Long id) {
+        List<Address> addressList = addressRepository.findAllByUserId(id);
+        return addressList.stream().map(address ->
+                modelMapper.map(address,AddAddressResponse.class)).collect(Collectors.toList());
     }
 
 

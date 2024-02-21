@@ -10,12 +10,11 @@ import org.springframework.web.bind.annotation.*;
 import ra.dto.request.ProductRequest;
 import ra.dto.response.Message;
 import ra.dto.response.ProductResponse;
-import ra.model.Product;
+import ra.dto.response.ProductResponseAdminId;
 import ra.service.ProductService;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 @RestController
 @RequestMapping("api.myservice.com/v1")
@@ -24,9 +23,9 @@ public class ProductController {
     private ProductService productService;
 
     @GetMapping("/products/search")
-    public ResponseEntity<?> searchByNameOrDescription(@RequestParam(required = false) String name,
-                                                       @RequestParam(required = false) String description) {
-        List<ProductResponse> productResponseList = productService.searchByNameOrDescription(name, description);
+    public ResponseEntity<?> searchByNameOrDescription(@RequestParam(required = false) String keyValue
+                                                       ) {
+        List<ProductResponse> productResponseList = productService.searchByNameOrDescription(keyValue);
         if (productResponseList == null) {
             return new ResponseEntity<>(new Message("Has no Name or description contain seach"), HttpStatus.NOT_FOUND);
         } else {
@@ -35,11 +34,12 @@ public class ProductController {
     }
 
     @GetMapping("/products")
-    public ResponseEntity<List<ProductResponse>> findByDirectionAndPaging(@PageableDefault(size = 2, page = 0,
+    public ResponseEntity<List<ProductResponse>> findByDirectionAndPagingWithStatusTrue(@PageableDefault(size = 2, page = 0,
             sort = "name", direction = Sort.Direction.ASC) Pageable pageable) {
-        List<ProductResponse> productResponseList = productService.findByDirectionAndPaging(pageable);
+        List<ProductResponse> productResponseList = productService.findByDirectionAndPagingWithStatusTrue(pageable);
         return new ResponseEntity<>(productResponseList, HttpStatus.OK);
     }
+
 
     // Danh sách sản phẩm mới
 
@@ -81,6 +81,17 @@ public class ProductController {
         return new ResponseEntity<>(productResponseList, HttpStatus.OK);
     }
 
+    //    Lấy thông tin theo id
+    @GetMapping("/admin/products/{productId}")
+    public ResponseEntity<?> getProductsByIdWithAdminId(@PathVariable Long productId) {
+        ProductResponseAdminId productResponseAdminId = productService.getProductsByIdWithAdmin(productId);
+        if (productResponseAdminId == null) {
+            return new ResponseEntity<>(new Message("Has no product"), HttpStatus.NOT_FOUND);
+        } else {
+            return new ResponseEntity<>(productResponseAdminId, HttpStatus.OK);
+        }
+    }
+
     //    Thêm mới sản phẩm
     @PostMapping("/admin/products")
     public ResponseEntity<?> save(@RequestBody ProductRequest productRequest) {
@@ -97,29 +108,46 @@ public class ProductController {
     @PutMapping("/admin/products/{productId}")
     public ResponseEntity<?> update(@RequestBody ProductRequest productRequest,
                                     @PathVariable Long productId) {
-        ProductResponse newProducResponse = productService.update(productRequest,productId);
-        if (newProducResponse == null){
+        ProductResponse newProducResponse = productService.update(productRequest, productId);
+        if (newProducResponse == null) {
             return new ResponseEntity<>(new Message("Id not found"), HttpStatus.NOT_FOUND);
-        }else {
-            return new ResponseEntity<>(newProducResponse,HttpStatus.OK);
-        }
-    }
-// Xóa sản phẩm
-    @PatchMapping("/admin/products/{productId}")
-    public ResponseEntity<?> delete(@PathVariable Long productId){
-        boolean result = productService.delete(productId);
-        if (result){
-            return  new ResponseEntity<>(new Message("Deleted!(Thực ra là đổi status)"),HttpStatus.OK);
-        }else {
-            return new ResponseEntity<>(new Message("Id not found"),HttpStatus.NOT_FOUND);
+        } else {
+            return new ResponseEntity<>(newProducResponse, HttpStatus.OK);
         }
     }
 
-//    Danh sách sản phẩm nổi bật
-//    @GetMapping("/products/featured-products")
-//    public ResponseEntity<Map<Long, Long>> findTopProdductsInWishList(){
-//        Map<Long, Long> listTopWishList = productService.findTopProdductsInWishList();
-//        return new ResponseEntity<>(listTopWishList,HttpStatus.OK);
-//    }
+    // Xóa sản phẩm
+    @PatchMapping("/admin/products/{productId}")
+    public ResponseEntity<?> delete(@PathVariable Long productId) {
+        boolean result = productService.delete(productId);
+        if (result) {
+            return new ResponseEntity<>(new Message("Deleted!(Thực ra là đổi status)"), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(new Message("Id not found"), HttpStatus.NOT_FOUND);
+        }
+    }
+
+    //    Danh sách sản phẩm nổi bật
+    @GetMapping("/products/featured-products")
+    public ResponseEntity<?> findTopProdductsInWishList() {
+        List<ProductResponse> productResponseList = productService.getFeaturedProducts();
+        if (productResponseList.isEmpty()){
+            return new ResponseEntity<>(new Message("No Featured Product"),HttpStatus.NOT_FOUND);
+        }else {
+            return new ResponseEntity<>(productResponseList, HttpStatus.OK);
+        }
+    }
+
+    //    Danh sách sản phẩm bán chạy
+    @GetMapping("/products/best-seller-products")
+    public ResponseEntity<?> findBestSellerProducts() {
+        List<ProductResponse> productResponseList = productService.findBestSellerProducts();
+        if (productResponseList.isEmpty()){
+            return new ResponseEntity<>(new Message("No Best Seller Product"),HttpStatus.NOT_FOUND);
+        }else {
+            return new ResponseEntity<>(productResponseList, HttpStatus.OK);
+        }
+
+    }
 
 }

@@ -20,8 +20,6 @@ public class CustomUserDetail implements UserDetails {
     private String email;
     private String fullName;
     private Collection<? extends GrantedAuthority> authorities;
-    @Autowired
-    private User user;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

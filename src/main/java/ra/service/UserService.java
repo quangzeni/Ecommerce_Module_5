@@ -1,8 +1,11 @@
 package ra.service;
 
 import org.springframework.data.domain.Pageable;
+import ra.dto.request.AddAddressRequest;
+import ra.dto.request.ChangePasswordRequest;
 import ra.dto.request.SignInRequest;
 import ra.dto.request.SignUpRequest;
+import ra.dto.response.AddAddressResponse;
 import ra.dto.response.SignInResponse;
 import ra.dto.response.SignUpResponse;
 import ra.dto.response.UserDTOResponse;
@@ -17,5 +20,8 @@ public interface UserService {
     UserDTOResponse getUserById(Long id);
     UserDTOResponse toggleUserLock(Long id);
     List<UserDTOResponse> findByUserName(String userName);
+    UserDTOResponse changePassword(Long id, ChangePasswordRequest changePasswordRequest);
+    AddAddressResponse addAddress(Long id, AddAddressRequest addAddressRequest);
+    List<AddAddressResponse> getListAddress(Long id);
 
 }
