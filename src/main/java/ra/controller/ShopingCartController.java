@@ -57,7 +57,7 @@ public class ShopingCartController {
         }catch (UsernameNotFoundException ex){
             return new ResponseEntity<>(new Message("Not found Cart with userId"),HttpStatus.NOT_FOUND);
         }catch (RuntimeException ex){
-            return new ResponseEntity<>(new Message("ProductId not found"),HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(new Message("quantity not enough"),HttpStatus.NOT_FOUND);
         }
     }
 

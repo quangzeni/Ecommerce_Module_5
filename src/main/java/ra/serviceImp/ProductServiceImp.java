@@ -96,7 +96,7 @@ public class ProductServiceImp implements ProductService {
         Pageable pageable = PageRequest.of(0, 3);
         Page<Product> productPage = productRepository.findAllByOrderByCreated(pageable);
         List<Product> products = productPage.getContent();
-        return productPage.stream().map(product ->
+        return products.stream().map(product ->
                 modelMapper.map(product, ProductResponse.class)).collect(Collectors.toList());
     }
 

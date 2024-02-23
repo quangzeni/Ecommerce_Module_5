@@ -16,9 +16,9 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 public class ProductRequest {
+    private String sku;
     @Length(max = 100, message = "Maximum product name length is 100 characters")
     @NotNull(message = "Product name cannot be empty")
-    private String sku;
     private String name;
     private String description;
     private BigDecimal unitPrice;

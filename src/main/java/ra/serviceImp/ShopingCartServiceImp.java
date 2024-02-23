@@ -70,7 +70,12 @@ public class ShopingCartServiceImp implements ShopingCartService {
         // Lấy thông tin sản phẩm từ request
         Long productId = addProductRequest.getProductId();
         int quantity = addProductRequest.getQuantity();
-
+        Product product = productRepository.findById(productId).orElseThrow(() ->
+                new RuntimeException("Product not found"));
+        Integer stockQuantity = product.getStockQuantity();
+        if (quantity > stockQuantity ){
+            throw new RuntimeException("quantity not enough");
+        }
         ShopingCart shopingCart = shopingCartRepository.findByUserIdAndProductId(userId, productId);
         if (shopingCart == null) {
 //            Tạo giỏ hàng mơ và thêm sản phẩm
@@ -78,8 +83,6 @@ public class ShopingCartServiceImp implements ShopingCartService {
             User user = userRepository.findById(userId).orElseThrow(
                     () -> new UsernameNotFoundException("User not found"));
             shopingCart.setUser(user);
-            Product product = productRepository.findById(productId).orElseThrow(() ->
-                    new RuntimeException("Product not found"));
             shopingCart.setProduct(product);
             shopingCart.setOrderQuantity(quantity);
         } else {
@@ -88,15 +91,14 @@ public class ShopingCartServiceImp implements ShopingCartService {
 
         shopingCart = shopingCartRepository.save(shopingCart);
         return modelMapper.map(shopingCart, ShopingCartResponse.class);
-
     }
 
     @Override
     public ShopingCartResponse updateQuantity(Long userId, Integer shopingCartId, AddProductRequest
-            addProductRequest){
-        ShopingCart shopingCart = shopingCartRepository.findById(shopingCartId).orElseThrow(()->
+            addProductRequest) {
+        ShopingCart shopingCart = shopingCartRepository.findById(shopingCartId).orElseThrow(() ->
                 new RuntimeException("ShopingCart not found"));
-        if (!shopingCart.getUser().getId().equals(userId)){
+        if (!shopingCart.getUser().getId().equals(userId)) {
             throw new UsernameNotFoundException("User and ShopingCart not match");
         }
         shopingCart.setOrderQuantity(addProductRequest.getQuantity());
@@ -113,9 +115,9 @@ public class ShopingCartServiceImp implements ShopingCartService {
 
     @Override
     public void delete(Long userId, Integer shopingCartId) {
-        ShopingCart shopingCart = shopingCartRepository.findById(shopingCartId).orElseThrow(()->
+        ShopingCart shopingCart = shopingCartRepository.findById(shopingCartId).orElseThrow(() ->
                 new UsernameNotFoundException("ShopingCart not exist"));
-        if (!shopingCart.getUser().getId().equals(userId)){
+        if (!shopingCart.getUser().getId().equals(userId)) {
             throw new RuntimeException("UserId and ShopingCart not match");
         }
         shopingCartRepository.delete(shopingCart);
@@ -123,9 +125,9 @@ public class ShopingCartServiceImp implements ShopingCartService {
     }
 
     @Override
-    public void  deleteAll(Long userId){
+    public void deleteAll(Long userId) {
         List<ShopingCart> shopingCartList = shopingCartRepository.findAllByUserId(userId);
-        for (ShopingCart shopingCart : shopingCartList){
+        for (ShopingCart shopingCart : shopingCartList) {
             shopingCartRepository.delete(shopingCart);
         }
     }
@@ -139,13 +141,9 @@ public class ShopingCartServiceImp implements ShopingCartService {
             throw new RuntimeException("No items in the shopping cart to checkout");
         }
 
-        // Thực hiện quá trình đặt hàng cho từng sản phẩm trong giỏ hàng
+        // Đặt hàng cho từng sản phẩm trong giỏ hàng
         for (ShopingCart shopingCart : shopingCartList) {
-            // Thực hiện các bước đặt hàng, ví dụ: tạo đơn hàng mới, xử lý thanh toán, cập nhật trạng thái sản phẩm, v.v.
-            // Đây chỉ là ví dụ, bạn cần thay đổi theo logic kinh doanh cụ thể của bạn
-            // ...
 
-            // Xóa sản phẩm khỏi giỏ hàng sau khi đã đặt hàng thành công
             shopingCartRepository.delete(shopingCart);
         }
     }

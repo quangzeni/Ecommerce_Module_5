@@ -23,8 +23,7 @@ public class ProductController {
     private ProductService productService;
 
     @GetMapping("/products/search")
-    public ResponseEntity<?> searchByNameOrDescription(@RequestParam(required = false) String keyValue
-                                                       ) {
+    public ResponseEntity<?> searchByNameOrDescription(@RequestParam(required = false) String keyValue) {
         List<ProductResponse> productResponseList = productService.searchByNameOrDescription(keyValue);
         if (productResponseList == null) {
             return new ResponseEntity<>(new Message("Has no Name or description contain seach"), HttpStatus.NOT_FOUND);
@@ -43,7 +42,7 @@ public class ProductController {
 
     // Danh sách sản phẩm mới
 
-    @GetMapping("/new-products")
+    @GetMapping("/products/new-products")
     public ResponseEntity<List<ProductResponse>> getTopNewsProducts() {
         List<ProductResponse> productResponseList = productService.getTop3NewsProducts();
         return new ResponseEntity<>(productResponseList, HttpStatus.OK);

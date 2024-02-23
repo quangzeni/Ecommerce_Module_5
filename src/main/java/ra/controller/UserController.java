@@ -20,7 +20,7 @@ import ra.service.UserService;
 import java.util.List;
 
 @RestController
-@RequestMapping("api.myservice.com/v1/")
+@RequestMapping("api.myservice.com/v1")
 public class UserController {
     @Autowired
     private UserService userService;
@@ -28,14 +28,14 @@ public class UserController {
     private RoleService roleService;
 
     //Đăng kí tài khoản người dùng
-    @PostMapping("auth/sign-up")
+    @PostMapping("/auth/sign-up")
     public ResponseEntity<SignUpResponse> register(@RequestBody SignUpRequest signUpRequest) {
         SignUpResponse signUpResponse = userService.register(signUpRequest);
         return new ResponseEntity<>(signUpResponse, HttpStatus.CREATED);
     }
 
     //Đăng nhập tài khoản bằng username và password
-    @PostMapping("auth/sign-in")
+    @PostMapping("/auth/sign-in")
     public ResponseEntity<?> login(@RequestBody SignInRequest signInRequest) {
 //        SignInResponse signInResponse = userService.login(signInRequest);
 //        return new ResponseEntity<>(signInResponse,HttpStatus.OK);
@@ -47,7 +47,7 @@ public class UserController {
             return new ResponseEntity<>(new Message("ERROR"), HttpStatus.UNAUTHORIZED);
         }
     }
-
+///api.myservice.com/v1/account/
     //    Thông tin tài khoản người dùng theo id
     @GetMapping("/account/{userId}")
     public ResponseEntity<?> getUserById(@PathVariable Long userId) {
@@ -94,7 +94,7 @@ public class UserController {
 //Lấy ra danh sách người dùng  (phân trang và sắp xếp)
 
 
-    @GetMapping("admin/users")
+    @GetMapping("/admin/users")
     public ResponseEntity<?> findAll(@PageableDefault(size = 3, page = 0, sort = "userName"
             , direction = Sort.Direction.ASC) Pageable pageable) {
         List<UserDTOResponse> userDTOResponseList = userService.findAllByDirection(pageable);
